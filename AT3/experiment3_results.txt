@@ -1,0 +1,6 @@
+H(PlayTennis)=0.9403
+IG(Outlook)=0.2467  H(S|Outlook)=0.6935
+IG(Temperature)=0.0292  H(S|Temperature)=0.9111
+IG(Humidity)=0.1518  H(S|Humidity)=0.7885
+IG(Wind)=0.0481  H(S|Wind)=0.8922
+Best attribute: Outlook (IG=0.2467)

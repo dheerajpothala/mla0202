@@ -1,0 +1,15 @@
+P(Spam)=0.1342  P(Ham)=0.8658
+Message: "WINNER!! You have been selected to receive a FREE cash prize call now"
+P(Spam|Msg)=1.000000  P(Ham|Msg)=0.000000  ->  SPAM
+Accuracy=0.9848
+[[137  12]
+ [  5 961]]
+              precision    recall  f1-score   support
+
+         ham       0.99      0.99      0.99       966
+        spam       0.96      0.92      0.94       149
+
+    accuracy                           0.98      1115
+   macro avg       0.98      0.96      0.97      1115
+weighted avg       0.98      0.98      0.98      1115
+

@@ -1,0 +1,15 @@
+P(Malignant)=0.3736  P(Benign)=0.6264
+Predicted=Malignant  Actual=Malignant
+Score(Malignant)=2.6421  Score(Benign)=-221.3840
+Accuracy=0.9298
+[[38  4]
+ [ 4 68]]
+              precision    recall  f1-score   support
+
+   Malignant       0.90      0.90      0.90        42
+      Benign       0.94      0.94      0.94        72
+
+    accuracy                           0.93       114
+   macro avg       0.92      0.92      0.92       114
+weighted avg       0.93      0.93      0.93       114
+
