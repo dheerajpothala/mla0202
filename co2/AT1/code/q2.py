@@ -30,3 +30,17 @@ probability = model.predict_proba(new_email)
 print("\n(iii) Classification of new email (Offer=2, Win=1):")
 print("Prediction:", "Spam" if prediction[0] == 1 else "Not Spam")
 print("Probability [Not Spam, Spam]:", probability)
+
+"""
+Output:
+(i) Linear Classification Model:
+z = (0.9278)*Offer + (0.5431)*Win + (-1.7758)
+Spam predicted if sigmoid(z) >= 0.5, else Not Spam
+
+(ii) Decision Boundary:
+(0.9278)*Offer + (0.5431)*Win + (-1.7758) = 0
+
+(iii) Classification of new email (Offer=2, Win=1):
+Prediction: Spam
+Probability [Not Spam, Spam]: [[0.34910736 0.65089264]]
+"""
