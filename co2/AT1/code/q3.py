@@ -34,3 +34,24 @@ prob = model.predict_proba(test)
 print("\n(iii) Prediction for Fever=1, Headache=0:")
 print("Predicted Disease:", pred[0])
 print(f"Probability [No, Yes]: {prob}")
+"""
+OUTPUT:
+
+(i) Prior Probabilities:
+P(Disease=No) = 0.4000
+P(Disease=Yes) = 0.6000
+
+(ii) Conditional Probabilities:
+P(Fever=0|Disease=No) = 0.7500
+P(Fever=1|Disease=No) = 0.2500
+P(Fever=0|Disease=Yes) = 0.2000
+P(Fever=1|Disease=Yes) = 0.8000
+P(Headache=0|Disease=No) = 0.5000
+P(Headache=1|Disease=No) = 0.5000
+P(Headache=0|Disease=Yes) = 0.4000
+P(Headache=1|Disease=Yes) = 0.6000
+
+(iii) Prediction for Fever=1, Headache=0:
+Predicted Disease: Yes
+Probability [No, Yes]: [[0.20661157 0.79338843]]
+"""
