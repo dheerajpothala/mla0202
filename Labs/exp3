@@ -30,3 +30,28 @@ for col in new_sample.columns:
 
 pred = model.predict(new_sample)
 print("Prediction for new sample:", le['PlayTennis'].inverse_transform(pred))
+
+"""
+Output:
+|--- Outlook <= 0.50
+|   |--- class: 1
+|--- Outlook >  0.50
+|   |--- Humidity <= 0.50
+|   |   |--- Outlook <= 1.50
+|   |   |   |--- Wind <= 0.50
+|   |   |   |   |--- class: 0
+|   |   |   |--- Wind >  0.50
+|   |   |   |   |--- class: 1
+|   |   |--- Outlook >  1.50
+|   |   |   |--- class: 0
+|   |--- Humidity >  0.50
+|   |   |--- Wind <= 0.50
+|   |   |   |--- Temperature <= 1.00
+|   |   |   |   |--- class: 0
+|   |   |   |--- Temperature >  1.00
+|   |   |   |   |--- class: 1
+|   |   |--- Wind >  0.50
+|   |   |   |--- class: 1
+
+Prediction for new sample: ['No']
+"""
