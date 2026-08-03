@@ -1,0 +1,31 @@
+import pandas as pd
+
+data = pd.DataFrame({
+    'Sky': ['Sunny','Sunny','Rainy','Sunny'],
+    'AirTemp': ['Warm','Warm','Cold','Warm'],
+    'Humidity': ['Normal','High','High','High'],
+    'Wind': ['Strong','Strong','Strong','Strong'],
+    'Water': ['Warm','Warm','Warm','Cool'],
+    'Forecast': ['Same','Same','Change','Change'],
+    'EnjoySport': ['Yes','Yes','No','Yes']
+})
+
+concepts = data.iloc[:, :-1].values
+target = data.iloc[:, -1].values
+
+def find_s(concepts, target):
+    specific_h = None
+    for i, val in enumerate(target):
+        if val == 'Yes':
+            if specific_h is None:
+                specific_h = concepts[i].copy()
+            else:
+                for x in range(len(specific_h)):
+                    if specific_h[x] != concepts[i][x]:
+                        specific_h[x] = '?'
+    return specific_h
+
+hypothesis = find_s(concepts, target)
+print("Training data:")
+print(data)
+print("\nMost specific hypothesis:", hypothesis)
