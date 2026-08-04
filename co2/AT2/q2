@@ -1,0 +1,49 @@
+import numpy as np
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, classification_report
+
+emails = [
+    "win money now claim your prize",
+    "limited offer buy now free gift",
+    "meeting scheduled for tomorrow morning",
+    "please review the attached project report",
+    "congratulations you won a lottery click here",
+    "urgent your account has been suspended verify now",
+    "lunch with team at noon today",
+    "invoice attached for last month payment",
+    "get rich quick work from home",
+    "your package has been shipped tracking info inside",
+    "free entry to win a brand new car",
+    "reminder submit your assignment by friday",
+    "exclusive deal only for you act fast",
+    "project deadline extended to next week",
+    "click here to claim your free reward",
+    "schedule a call with the client tomorrow"
+]
+
+labels = [1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0]
+
+vectorizer = CountVectorizer()
+X = vectorizer.fit_transform(emails)
+y = np.array(labels)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+
+model = LogisticRegression()
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print(classification_report(y_test, y_pred))
+
+new_emails = ["free money click now", "team meeting at 10am"]
+new_X = vectorizer.transform(new_emails)
+predictions = model.predict(new_X)
+print(predictions)
+
+# Output:
+# Accuracy: 1.0
+# [1 0]
