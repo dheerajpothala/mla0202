@@ -1,8 +1,9 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import accuracy_score, ConfusionMatrixDisplay
 
 emails = [
     "win money now claim your prize",
@@ -41,15 +42,18 @@ model = LogisticRegression()
 model.fit(X_train, y_train)
 
 y_pred = model.predict(X_test)
-
-print("Accuracy:", accuracy_score(y_test, y_pred))
-print(classification_report(y_test, y_pred, zero_division=0))
+print("Model Accuracy:", round(accuracy_score(y_test, y_pred) * 100, 2), "%")
 
 new_emails = ["free money click now", "team meeting at 10am"]
 new_X = vectorizer.transform(new_emails)
 predictions = model.predict(new_X)
-print(predictions)
+probabilities = model.predict_proba(new_X)
 
-# Output:
-# Accuracy: 1.0
-# [1 0]
+for email, pred, prob in zip(new_emails, predictions, probabilities):
+    label = "SPAM" if pred == 1 else "NOT SPAM"
+    print(f'Email: "{email}" --> Prediction: {label} '
+          f'(Confidence: {max(prob) * 100:.2f}%)')
+
+ConfusionMatrixDisplay.from_predictions(y_test, y_pred, display_labels=["Not Spam", "Spam"])
+plt.title("Confusion Matrix - Spam Classifier")
+plt.show()
