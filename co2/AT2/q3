@@ -1,0 +1,46 @@
+import numpy as np
+from sklearn.naive_bayes import BernoulliNB
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, classification_report
+
+# fever, cough, headache, fatigue, sore_throat -> 1 = yes, 0 = no
+X = np.array([
+    [1, 1, 1, 1, 0],
+    [1, 1, 0, 1, 1],
+    [0, 0, 0, 0, 0],
+    [0, 1, 0, 0, 1],
+    [1, 1, 1, 0, 1],
+    [0, 0, 1, 0, 0],
+    [1, 0, 1, 1, 0],
+    [0, 0, 0, 1, 0],
+    [1, 1, 1, 1, 1],
+    [0, 1, 0, 0, 0],
+    [1, 0, 0, 1, 1],
+    [0, 0, 1, 0, 1],
+    [1, 1, 0, 0, 0],
+    [0, 0, 0, 0, 1],
+    [1, 1, 1, 1, 0],
+    [0, 0, 0, 0, 0]
+])
+
+y = np.array([1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0])
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.25, random_state=42, stratify=y
+)
+
+model = BernoulliNB()
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print(classification_report(y_test, y_pred, zero_division=0))
+
+new_patients = [[1, 1, 1, 0, 0], [0, 0, 0, 0, 0]]
+predictions = model.predict(new_patients)
+print(predictions)
+
+# Output:
+# Accuracy: 1.0
+# [1 0]
