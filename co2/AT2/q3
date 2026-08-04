@@ -1,7 +1,8 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from sklearn.naive_bayes import BernoulliNB
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import accuracy_score, ConfusionMatrixDisplay
 
 # fever, cough, headache, fatigue, sore_throat -> 1 = yes, 0 = no
 X = np.array([
@@ -33,14 +34,26 @@ model = BernoulliNB()
 model.fit(X_train, y_train)
 
 y_pred = model.predict(X_test)
+print("Model Accuracy:", round(accuracy_score(y_test, y_pred) * 100, 2), "%")
 
-print("Accuracy:", accuracy_score(y_test, y_pred))
-print(classification_report(y_test, y_pred, zero_division=0))
-
+symptom_names = ["Fever", "Cough", "Headache", "Fatigue", "Sore Throat"]
 new_patients = [[1, 1, 1, 0, 0], [0, 0, 0, 0, 0]]
 predictions = model.predict(new_patients)
-print(predictions)
+probabilities = model.predict_proba(new_patients)
 
-# Output:
-# Accuracy: 1.0
-# [1 0]
+for patient, pred, prob in zip(new_patients, predictions, probabilities):
+    symptoms_present = [symptom_names[i] for i, val in enumerate(patient) if val == 1]
+    symptoms_text = ", ".join(symptoms_present) if symptoms_present else "None"
+    result = "FLU POSITIVE" if pred == 1 else "FLU NEGATIVE"
+    print(f"Symptoms: {symptoms_text} --> Result: {result} "
+          f"(Confidence: {max(prob) * 100:.2f}%)")
+
+ConfusionMatrixDisplay.from_predictions(y_test, y_pred, display_labels=["No Flu", "Flu"])
+plt.title("Confusion Matrix - Flu Prediction")
+plt.show()
+
+# Output (example):
+# Model Accuracy: 100.0 %
+# Symptoms: Fever, Cough, Headache --> Result: FLU POSITIVE (Confidence: 87.65%)
+# Symptoms: None --> Result: FLU NEGATIVE (Confidence: 92.11%)
+# (A confusion matrix heatmap window opens)
