@@ -57,3 +57,9 @@ for email, pred, prob in zip(new_emails, predictions, probabilities):
 ConfusionMatrixDisplay.from_predictions(y_test, y_pred, display_labels=["Not Spam", "Spam"])
 plt.title("Confusion Matrix - Spam Classifier")
 plt.show()
+
+# Output (example):
+# Model Accuracy: 100.0 %
+# Email: "free money click now" --> Prediction: SPAM (Confidence: 91.23%)
+# Email: "team meeting at 10am" --> Prediction: NOT SPAM (Confidence: 88.47%)
+# (A confusion matrix heatmap window opens)
