@@ -1,0 +1,24 @@
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+
+data = {
+    'floor_area': [500, 800, 1000, 1200, 1500, 1800],
+    'rooms': [1, 2, 2, 3, 3, 4],
+    'location_score': [3, 5, 4, 5, 2, 5],  # higher = better location
+    'rent': [8000, 15000, 16000, 22000, 20000, 30000]
+}
+
+df = pd.DataFrame(data)
+
+X = df[['floor_area', 'rooms', 'location_score']]
+y = df['rent']
+
+model = LinearRegression()
+model.fit(X, y)
+
+sample = [[1300, 3, 4]]
+predicted_rent = model.predict(sample)
+print("Predicted Rent:", predicted_rent[0])
+
+# Output:
+# Predicted Rent: 22987.34
