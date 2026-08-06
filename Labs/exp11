@@ -1,0 +1,41 @@
+import numpy as np, pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+
+print("Dheeraj Pothala/192525230")
+
+np.random.seed(42)
+n = 600
+income = np.random.randint(15000, 150000, n)
+age = np.random.randint(21, 65, n)
+loans_taken = np.random.randint(0, 6, n)
+outstanding_debt = np.random.randint(0, 50000, n)
+payment_delays = np.random.randint(0, 15, n)
+credit_history_years = np.random.randint(0, 30, n)
+score = (income/1000) - (outstanding_debt/1000) - (payment_delays*5) + (credit_history_years*2) - (loans_taken*3)
+credit_score = pd.cut(score, bins=[-np.inf,20,60,np.inf], labels=["Poor","Standard","Good"])
+
+df = pd.DataFrame({"Income":income,"Age":age,"Loans_Taken":loans_taken,"Outstanding_Debt":outstanding_debt,
+                    "Payment_Delays":payment_delays,"Credit_History_Years":credit_history_years,"Credit_Score":credit_score})
+
+X = df.drop("Credit_Score", axis=1)
+y = LabelEncoder().fit_transform(df["Credit_Score"])
+le = LabelEncoder().fit(df["Credit_Score"])
+scaler = StandardScaler()
+Xs = scaler.fit_transform(X)
+X_train, X_test, y_train, y_test = train_test_split(Xs, y, test_size=0.2, random_state=42)
+
+model = RandomForestClassifier(n_estimators=200, random_state=42)
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print(classification_report(y_test, y_pred, target_names=le.classes_))
+print(confusion_matrix(y_test, y_pred))
+
+new_customer = pd.DataFrame([{"Income":85000,"Age":34,"Loans_Taken":1,"Outstanding_Debt":5000,"Payment_Delays":1,"Credit_History_Years":10}])
+print("Prediction:", le.inverse_transform(model.predict(scaler.transform(new_customer)))[0])
+
+print("Dheeraj Pothala/192525230")
