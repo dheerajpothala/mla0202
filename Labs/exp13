@@ -15,8 +15,9 @@ fuel_type = np.random.choice([0,1,2], n)
 transmission = np.random.choice([0,1], n)
 owners = np.random.randint(0, 3, n)
 age = 2024 - year
-selling_price = (present_price*0.6) - (age*0.4) - (kms_driven/20000) + (transmission*1.5) - (owners*0.5) + np.random.normal(0,1,n)
-selling_price = np.clip(selling_price, 0.5, None)
+depreciation = 0.92 ** age
+selling_price = (present_price * depreciation) - (kms_driven/50000) + (transmission*0.8) - (owners*0.4) + np.random.normal(0,0.5,n)
+selling_price = np.clip(selling_price, 0.3, present_price)
 
 df = pd.DataFrame({"Year":year,"Present_Price":present_price,"Kms_Driven":kms_driven,"Fuel_Type":fuel_type,
                     "Transmission":transmission,"Owners":owners,"Selling_Price":selling_price})
@@ -33,11 +34,12 @@ model = LinearRegression()
 model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 
-print("MSE:", mean_squared_error(y_test, y_pred))
-print("MAE:", mean_absolute_error(y_test, y_pred))
-print("R2:", r2_score(y_test, y_pred))
+print("MSE:", round(mean_squared_error(y_test, y_pred), 3))
+print("MAE:", round(mean_absolute_error(y_test, y_pred), 3))
+print("R2:", round(r2_score(y_test, y_pred), 3))
 
 new_car = pd.DataFrame([{"Year":2019,"Present_Price":9.5,"Kms_Driven":35000,"Fuel_Type":1,"Transmission":0,"Owners":0}])
-print("Predicted Price:", model.predict(scaler.transform(new_car))[0])
+predicted_price = model.predict(scaler.transform(new_car))[0]
+print("Predicted Selling Price (Lakhs):", round(predicted_price, 2))
 
 print("Dheeraj Pothala/192525230")
