@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import confusion_matrix, classification_report
 
-# ---- Create imbalanced dataset (92% ham, 8% spam) ----
+
 np.random.seed(1)
 def make_class(n, spam):
     return pd.DataFrame({
@@ -25,7 +25,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random
 scaler = StandardScaler()
 X_train_s, X_test_s = scaler.fit_transform(X_train), scaler.transform(X_test)
 
-# ---- i)/ii) Naive model: examine boundary/errors ----
+
 naive = LogisticRegression().fit(X_train_s, y_train)
 preds = naive.predict(X_test_s)
 tn, fp, fn, tp = confusion_matrix(y_test, preds).ravel()
@@ -33,7 +33,7 @@ print(f"NAIVE MODEL -> False Negatives (spam missed) = {fn}, False Positives = {
 print("Reason: imbalanced classes bias the boundary toward 'ham',",
       "and the default 0.5 threshold misses borderline spam.\n")
 
-# ---- iii) Fix: class balancing + lower threshold ----
+
 balanced = LogisticRegression(class_weight="balanced").fit(X_train_s, y_train)
 probs = balanced.predict_proba(X_test_s)[:, 1]
 final_preds = (probs >= 0.5).astype(int)   # balanced weights already shift the boundary
