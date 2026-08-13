@@ -1,0 +1,70 @@
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA, FactorAnalysis, FastICA
+from sklearn.mixture import GaussianMixture
+
+data = {
+    "Sample": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    "Alcohol": [14.23, 13.20, 13.16, 14.37, 13.24, 14.20, 14.39, 14.06, 14.83, 13.86],
+    "MalicAcid": [1.71, 1.78, 2.36, 1.95, 2.59, 1.76, 1.87, 2.15, 1.64, 1.35],
+    "Ash": [2.43, 2.14, 2.67, 2.50, 2.87, 2.45, 2.45, 2.61, 2.17, 2.27],
+    "Alcalinity": [15.6, 11.2, 18.6, 16.8, 21.0, 15.2, 14.6, 17.6, 14.0, 16.0],
+    "Magnesium": [127, 100, 101, 113, 118, 112, 96, 121, 97, 98],
+    "Phenols": [2.80, 2.65, 2.80, 3.85, 2.80, 3.27, 2.50, 2.60, 2.80, 2.98]
+}
+
+df = pd.DataFrame(data)
+
+X = df.drop(columns=["Sample"])
+
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+pca = PCA(n_components=2)
+X_pca = pca.fit_transform(X_scaled)
+
+fa = FactorAnalysis(n_components=2, random_state=42)
+X_fa = fa.fit_transform(X_scaled)
+
+ica = FastICA(n_components=2, random_state=42, max_iter=1000)
+X_ica = ica.fit_transform(X_scaled)
+
+gmm_pca = GaussianMixture(n_components=2, random_state=42)
+labels_pca = gmm_pca.fit_predict(X_pca)
+
+gmm_fa = GaussianMixture(n_components=2, random_state=42)
+labels_fa = gmm_fa.fit_predict(X_fa)
+
+gmm_ica = GaussianMixture(n_components=2, random_state=42)
+labels_ica = gmm_ica.fit_predict(X_ica)
+
+results = pd.DataFrame({
+    "Sample": df["Sample"],
+    "PCA1": X_pca[:, 0], "PCA2": X_pca[:, 1], "GMM_PCA": labels_pca,
+    "FA1": X_fa[:, 0], "FA2": X_fa[:, 1], "GMM_FA": labels_fa,
+    "ICA1": X_ica[:, 0], "ICA2": X_ica[:, 1], "GMM_ICA": labels_ica
+})
+
+pd.set_option("display.width", 200)
+pd.set_option("display.max_columns", 20)
+
+print("Dheeraj Krushna/192525230")
+print(results)
+print("PCA Explained Variance Ratio:", pca.explained_variance_ratio_)
+
+"""
+Dheeraj Krushna/192525230
+   Sample      PCA1      PCA2  GMM_PCA       FA1       FA2  GMM_FA      ICA1      ICA2  GMM_ICA
+0       1 -0.055642  0.910126        0 -0.187284 -0.814878       0 -0.375664  0.683341        0
+1       2 -1.831778 -1.826330        1 -1.367931  1.879881       1  1.688594 -0.807436        1
+2       3  1.907742 -1.298353        0  1.056269  0.792769       1 -0.343501 -1.505254        1
+3       4  0.245167  2.363875        0  0.198579 -0.634800       0 -1.163147  1.661792        0
+4       5  3.697841 -0.462036        0  1.973313  0.334243       0 -1.574297 -1.411488        1
+5       6 -0.431903  1.091360        0 -0.118866 -0.627280       0 -0.274826  0.925357        0
+6       7 -0.973641 -0.866875        1 -0.108687  0.220763       1  0.851606 -0.353029        1
+7       8  1.361523  0.068435        0  0.718295  0.001511       1 -0.685128 -0.344821        1
+8       9 -2.343168  0.161031        1 -1.242707  0.201301       1  1.055819  0.797823        1
+9      10 -1.576141 -0.141234        1 -0.920981 -1.353508       0  0.820544  0.353716        1
+PCA Explained Variance Ratio: [0.52825057 0.22740025]
+"""
