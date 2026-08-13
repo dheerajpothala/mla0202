@@ -1,0 +1,76 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
+
+data = {
+    "CustomerID": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    "Age": [19, 21, 20, 23, 31, 22, 35, 23, 64, 30],
+    "AnnualIncome": [15, 15, 16, 16, 17, 17, 18, 18, 19, 19],
+    "SpendingScore": [39, 81, 6, 77, 40, 76, 6, 94, 3, 72]
+}
+
+df = pd.DataFrame(data)
+
+X = df[["AnnualIncome", "SpendingScore"]]
+
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+wcss = []
+for k in range(1, 8):
+    km = KMeans(n_clusters=k, init="k-means++", random_state=42, n_init=10)
+    km.fit(X_scaled)
+    wcss.append(km.inertia_)
+
+plt.figure(figsize=(6, 4))
+plt.plot(range(1, 8), wcss, marker="o")
+plt.xlabel("Number of Clusters")
+plt.ylabel("WCSS")
+plt.title("Elbow Method")
+plt.savefig("elbow_case_study_1.png")
+plt.close()
+
+optimal_k = 4
+kmeans = KMeans(n_clusters=optimal_k, init="k-means++", random_state=42, n_init=10)
+clusters = kmeans.fit_predict(X_scaled)
+df["Cluster"] = clusters
+
+pca = PCA(n_components=2)
+X_pca = pca.fit_transform(X_scaled)
+df["PCA1"] = X_pca[:, 0]
+df["PCA2"] = X_pca[:, 1]
+
+plt.figure(figsize=(6, 4))
+plt.scatter(df["PCA1"], df["PCA2"], c=df["Cluster"], cmap="viridis", s=100)
+plt.xlabel("Principal Component 1")
+plt.ylabel("Principal Component 2")
+plt.title("Customer Segments (PCA Reduced)")
+plt.savefig("clusters_case_study_1.png")
+plt.close()
+
+print("Dheeraj Krushna/192525230")
+print(df)
+print("Explained Variance Ratio:", pca.explained_variance_ratio_)
+print("WCSS values:", wcss)
+print("Optimal Number of Clusters:", optimal_k)
+
+"""
+Dheeraj Krushna/192525230
+   CustomerID  Age  AnnualIncome  SpendingScore  Cluster      PCA1      PCA2
+0           1   19            15             39        2  0.779117 -1.220883
+1           2   21            15             81        0  1.671144 -0.328856
+2           3   20            16              6        2 -0.421762 -1.421762
+3           4   23            16             77        0  1.086189  0.086189
+4           5   31            17             40        2 -0.199644 -0.199644
+5           6   22            17             76        0  0.564951  0.564951
+6           7   35            18              6        1 -1.421762 -0.421762
+7           8   23            18             94        3  0.447248  1.447248
+8           9   64            19              3        1 -1.985478  0.014522
+9          10   30            19             72        3 -0.520004  1.479996
+Explained Variance Ratio: [0.57752143 0.42247857]
+WCSS values: [20.0, 11.425478278352585, 5.884940396713699, 3.4104386946218703, 2.3054382736097576, 1.5642073544801702, 0.9074284580130633]
+Optimal Number of Clusters: 4
+"""
