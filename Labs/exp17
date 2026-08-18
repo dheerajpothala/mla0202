@@ -1,0 +1,45 @@
+import numpy as np, pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+
+print("Dheeraj Pothala/192525230")
+
+np.random.seed(42)
+n = 700
+battery_power = np.random.randint(500, 6000, n)
+ram = np.random.randint(256, 8192, n)
+internal_memory = np.random.randint(4, 256, n)
+px_height = np.random.randint(0, 1960, n)
+px_width = np.random.randint(500, 2000, n)
+camera_mp = np.random.randint(2, 108, n)
+four_g = np.random.choice([0,1], n)
+five_g = np.random.choice([0,1], n)
+score = (ram/500)+(internal_memory/20)+(battery_power/400)+(camera_mp/15)+(four_g*2)+(five_g*3)+(px_width/400)
+price_range = pd.qcut(score, q=4, labels=[0,1,2,3]).astype(int)
+
+df = pd.DataFrame({"Battery_Power":battery_power,"RAM":ram,"Internal_Memory":internal_memory,"Px_Height":px_height,
+                    "Px_Width":px_width,"Camera_MP":camera_mp,"Four_G":four_g,"Five_G":five_g,"Price_Range":price_range})
+
+X = df.drop("Price_Range", axis=1)
+y = df["Price_Range"]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+model = RandomForestClassifier(n_estimators=200, random_state=42)
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print(classification_report(y_test, y_pred))
+print(confusion_matrix(y_test, y_pred))
+
+price_labels = {0:"Low",1:"Medium",2:"High",3:"Very High"}
+new_mobile = pd.DataFrame([{"Battery_Power":4500,"RAM":6144,"Internal_Memory":128,"Px_Height":1600,"Px_Width":1080,"Camera_MP":64,"Four_G":1,"Five_G":1}])
+print("Prediction:", price_labels[model.predict(scaler.transform(new_mobile))[0]])
+
+print("Dheeraj Pothala/192525230")
