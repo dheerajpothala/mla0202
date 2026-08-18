@@ -1,0 +1,42 @@
+import numpy as np, pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+
+print("Dheeraj Pothala/192525230")
+
+np.random.seed(42)
+n = 600
+age = np.random.randint(21, 65, n)
+income = np.random.randint(15000, 150000, n)
+credit_score = np.random.randint(300, 900, n)
+existing_loans = np.random.randint(0, 5, n)
+employment_years = np.random.randint(0, 35, n)
+score = (income/2000) + (credit_score/20) - (existing_loans*10) + (employment_years*1.5)
+loan_approved = (score > np.median(score)).astype(int)
+
+df = pd.DataFrame({"Age":age,"Income":income,"Credit_Score":credit_score,"Existing_Loans":existing_loans,
+                    "Employment_Years":employment_years,"Loan_Approved":loan_approved})
+
+X = df.drop("Loan_Approved", axis=1)
+y = df["Loan_Approved"]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+model = GaussianNB()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print(classification_report(y_test, y_pred, target_names=["Rejected","Approved"]))
+print(confusion_matrix(y_test, y_pred))
+
+new_applicant = pd.DataFrame([{"Age":30,"Income":60000,"Credit_Score":720,"Existing_Loans":1,"Employment_Years":5}])
+result = "Approved" if model.predict(scaler.transform(new_applicant))[0]==1 else "Rejected"
+print("Prediction:", result)
+
+print("Dheeraj Pothala/192525230")
