@@ -1,0 +1,41 @@
+import numpy as np
+import networkx as nx
+
+print("Dheeraj Krushna/192525230")
+
+image = np.array([
+    [100, 102, 250, 98],
+    [101, 99, 100, 97],
+    [98, 250, 101, 99],
+    [100, 99, 98, 250]
+])
+
+rows, cols = image.shape
+graph = nx.grid_2d_graph(rows, cols)
+
+updated_image = image.copy().astype(float)
+
+for (r, c) in graph.nodes():
+    neighbor_values = [image[nr][nc] for (nr, nc) in graph.neighbors((r, c))]
+    neighbor_values.append(image[r][c])
+    updated_image[r][c] = np.mean(neighbor_values)
+
+print("Original Pixel Values:")
+print(image)
+print("Updated Pixel Values after MRF Smoothing:")
+print(np.round(updated_image, 2))
+
+'''
+OUTPUT:
+Dheeraj Krushna/192525230
+Original Pixel Values:
+[[100 102 250  98]
+ [101  99 100  97]
+ [ 98 250 101  99]
+ [100  99  98 250]]
+Updated Pixel Values after MRF Smoothing:
+[[101.   137.75 137.5  148.33]
+ [ 99.5  130.4  129.4   98.5 ]
+ [137.25 129.4  129.6  136.75]
+ [ 99.   136.75 137.   149.  ]]
+'''
