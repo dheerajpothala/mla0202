@@ -1,0 +1,39 @@
+import numpy as np, pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
+print("Dheeraj Pothala/192525230")
+
+np.random.seed(42)
+n = 500
+tv_ad_spend = np.random.uniform(0, 300, n)
+radio_ad_spend = np.random.uniform(0, 50, n)
+newspaper_ad_spend = np.random.uniform(0, 100, n)
+social_media_spend = np.random.uniform(0, 80, n)
+sales = (0.045*tv_ad_spend)+(0.19*radio_ad_spend)+(0.01*newspaper_ad_spend)+(0.15*social_media_spend)+3+np.random.normal(0,1.2,n)
+
+df = pd.DataFrame({"TV_Ad_Spend":tv_ad_spend,"Radio_Ad_Spend":radio_ad_spend,
+                    "Newspaper_Ad_Spend":newspaper_ad_spend,"Social_Media_Spend":social_media_spend,"Sales":sales})
+
+X = df.drop("Sales", axis=1)
+y = df["Sales"]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+model = RandomForestRegressor(n_estimators=200, random_state=42)
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print("MSE:", mean_squared_error(y_test, y_pred))
+print("MAE:", mean_absolute_error(y_test, y_pred))
+print("R2:", r2_score(y_test, y_pred))
+
+new_budget = pd.DataFrame([{"TV_Ad_Spend":150,"Radio_Ad_Spend":25,"Newspaper_Ad_Spend":40,"Social_Media_Spend":35}])
+print("Predicted Sales:", model.predict(scaler.transform(new_budget))[0])
+
+print("Dheeraj Pothala/192525230")
