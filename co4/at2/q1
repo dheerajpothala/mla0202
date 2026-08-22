@@ -1,0 +1,70 @@
+from pgmpy.models import DiscreteBayesianNetwork
+from pgmpy.factors.discrete import TabularCPD
+from pgmpy.inference import VariableElimination
+
+student_name = "Dheeraj Krushna"
+reg_no = "192525230"
+
+model = DiscreteBayesianNetwork([
+    ("Amount", "Fraud"),
+    ("Location", "Fraud"),
+    ("Device", "Fraud"),
+    ("PrevFraud", "Fraud")
+])
+
+cpd_amount = TabularCPD(variable="Amount", variable_card=2, values=[[0.7], [0.3]], state_names={"Amount": ["Low", "High"]})
+cpd_location = TabularCPD(variable="Location", variable_card=2, values=[[0.8], [0.2]], state_names={"Location": ["Usual", "Unusual"]})
+cpd_device = TabularCPD(variable="Device", variable_card=2, values=[[0.75], [0.25]], state_names={"Device": ["Known", "New"]})
+cpd_prevfraud = TabularCPD(variable="PrevFraud", variable_card=2, values=[[0.9], [0.1]], state_names={"PrevFraud": ["No", "Yes"]})
+
+cpd_fraud = TabularCPD(
+    variable="Fraud", variable_card=2,
+    values=[
+        [0.99, 0.90, 0.85, 0.60, 0.80, 0.55, 0.50, 0.20, 0.95, 0.80, 0.70, 0.40, 0.75, 0.45, 0.35, 0.05],
+        [0.01, 0.10, 0.15, 0.40, 0.20, 0.45, 0.50, 0.80, 0.05, 0.20, 0.30, 0.60, 0.25, 0.55, 0.65, 0.95]
+    ],
+    evidence=["Amount", "Location", "Device", "PrevFraud"],
+    evidence_card=[2, 2, 2, 2],
+    state_names={
+        "Fraud": ["No", "Yes"],
+        "Amount": ["Low", "High"],
+        "Location": ["Usual", "Unusual"],
+        "Device": ["Known", "New"],
+        "PrevFraud": ["No", "Yes"]
+    }
+)
+
+model.add_cpds(cpd_amount, cpd_location, cpd_device, cpd_prevfraud, cpd_fraud)
+assert model.check_model()
+
+infer = VariableElimination(model)
+
+query_evidence = {"Amount": "High", "Location": "Unusual", "Device": "New", "PrevFraud": "Yes"}
+result = infer.query(variables=["Fraud"], evidence=query_evidence)
+
+print("Fraud Detection Using Bayesian Networks")
+print(f"Student Name: {student_name}")
+print(f"Registration No: {reg_no}\n")
+
+print("Bayesian Network Structure:")
+for edge in model.edges():
+    print(f"  {edge[0]} -> {edge[1]}")
+
+print("\nConditional Probability Table for Fraud:")
+print(cpd_fraud)
+
+print(f"\nQuery Evidence: {query_evidence}")
+print("Inference Result:")
+print(result)
+
+fraud_prob = result.get_value(Fraud="Yes")
+prediction = "Fraudulent" if fraud_prob > 0.5 else "Not Fraudulent"
+print(f"\nPredicted Class: {prediction} (P(Fraud=Yes) = {fraud_prob:.4f})")
+
+print("\nInterpretation:")
+print("The Bayesian Network combines prior probabilities of transaction attributes with")
+print("conditional dependencies to compute the posterior probability of fraud given evidence.")
+print("This allows the bank to quantify uncertainty and flag high-risk transactions for review,")
+print("improving fraud detection by reasoning under uncertainty rather than using fixed rules.")
+
+# Output includes student name/reg no, the Bayesian Network structure, the Fraud CPT, the inference result for a sample transaction, and its interpretation
