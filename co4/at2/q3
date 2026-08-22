@@ -1,0 +1,88 @@
+import sklearn_crfsuite
+from sklearn_crfsuite import metrics
+
+student_name = "Dheeraj Krushna"
+reg_no = "192525230"
+
+train_sentences = [
+    [("Hi", "O"), ("this", "O"), ("is", "O"), ("John", "CUSTOMER"), ("Smith", "CUSTOMER"), ("my", "O"), ("order", "O"), ("ORD1023", "ORDERID"), ("for", "O"), ("SmartWatch", "PRODUCT"), ("X1", "PRODUCT"), ("is", "O"), ("delayed", "ISSUE")],
+    [("Hello", "O"), ("I", "O"), ("am", "O"), ("Priya", "CUSTOMER"), ("Rao", "CUSTOMER"), ("order", "O"), ("ORD2091", "ORDERID"), ("for", "O"), ("Wireless", "PRODUCT"), ("Earbuds", "PRODUCT"), ("stopped", "O"), ("working", "ISSUE")],
+    [("Dear", "O"), ("support", "O"), ("Michael", "CUSTOMER"), ("Lee", "CUSTOMER"), ("order", "O"), ("ORD3345", "ORDERID"), ("Laptop", "PRODUCT"), ("Pro", "PRODUCT"), ("15", "PRODUCT"), ("arrived", "O"), ("damaged", "ISSUE")],
+    [("This", "O"), ("is", "O"), ("Anita", "CUSTOMER"), ("Verma", "CUSTOMER"), ("regarding", "O"), ("order", "O"), ("ORD4487", "ORDERID"), ("Bluetooth", "PRODUCT"), ("Speaker", "PRODUCT"), ("is", "O"), ("not", "O"), ("charging", "ISSUE")]
+]
+
+def word_features(sentence, i):
+    word = sentence[i][0]
+    features = {
+        "bias": 1.0,
+        "word.lower()": word.lower(),
+        "word.isupper()": word.isupper(),
+        "word.istitle()": word.istitle(),
+        "word.isdigit()": word.isdigit(),
+        "word[-3:]": word[-3:],
+        "word[:3]": word[:3]
+    }
+    if i > 0:
+        prev_word = sentence[i - 1][0]
+        features.update({
+            "-1:word.lower()": prev_word.lower(),
+            "-1:word.istitle()": prev_word.istitle()
+        })
+    else:
+        features["BOS"] = True
+    if i < len(sentence) - 1:
+        next_word = sentence[i + 1][0]
+        features.update({
+            "+1:word.lower()": next_word.lower(),
+            "+1:word.istitle()": next_word.istitle()
+        })
+    else:
+        features["EOS"] = True
+    return features
+
+def sentence_features(sentence):
+    return [word_features(sentence, i) for i in range(len(sentence))]
+
+def sentence_labels(sentence):
+    return [label for _, label in sentence]
+
+X_train = [sentence_features(s) for s in train_sentences]
+y_train = [sentence_labels(s) for s in train_sentences]
+
+crf = sklearn_crfsuite.CRF(algorithm="lbfgs", c1=0.1, c2=0.1, max_iterations=100, all_possible_transitions=True)
+crf.fit(X_train, y_train)
+
+test_sentence = [("Hi", ""), ("I", ""), ("am", ""), ("Rahul", ""), ("Kumar", ""), ("order", ""), ("ORD5561", ""), ("Home", ""), ("Router", ""), ("keeps", ""), ("disconnecting", "")]
+X_test = [sentence_features(test_sentence)]
+y_pred = crf.predict(X_test)[0]
+
+print("Named Entity Recognition for Customer Support Using Conditional Random Fields")
+print(f"Student Name: {student_name}")
+print(f"Registration No: {reg_no}\n")
+
+print("Training Sentences and Labels:")
+for s in train_sentences:
+    print(" ", s)
+
+print("\nNew Customer Support Email:")
+print(" ", [w for w, _ in test_sentence])
+
+print("\nPredicted Entity Labels:")
+for (word, _), label in zip(test_sentence, y_pred):
+    print(f"  {word:15s} -> {label}")
+
+y_true_eval = [sentence_labels(s) for s in train_sentences]
+y_pred_eval = crf.predict([sentence_features(s) for s in train_sentences])
+labels = list(crf.classes_)
+labels.remove("O")
+f1 = metrics.flat_f1_score(y_true_eval, y_pred_eval, average="weighted", labels=labels)
+
+print(f"\nWeighted F1 Score on Training Data: {f1:.4f}")
+
+print("\nInterpretation:")
+print("The CRF model uses word-level features and context from neighboring words to")
+print("jointly label each token in the sequence, capturing dependencies between adjacent")
+print("labels. This enables accurate extraction of customer name, order ID, product name,")
+print("and issue type from unstructured emails, improving automation in CRM systems.")
+
+# Output includes student name/reg no, training data, predicted entity labels for a new email, evaluation F1 score, and interpretation
