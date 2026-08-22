@@ -1,0 +1,82 @@
+import matplotlib.pyplot as plt
+import networkx as nx
+
+student_name = "Dheeraj Krushna"
+reg_no = "192525230"
+
+comparison = {
+    "State Representation": ("HMM: Hidden states represent unobserved activity labels", "CRF: Conditional states directly modeled given observations"),
+    "Observation Modeling": ("HMM: Generative, models joint probability P(X,Y)", "CRF: Discriminative, models conditional probability P(Y|X)"),
+    "Learning Approach": ("HMM: Maximum likelihood estimation via Baum-Welch", "CRF: Gradient based optimization of conditional likelihood"),
+    "Prediction Accuracy": ("HMM: Lower accuracy with complex overlapping features", "CRF: Higher accuracy due to use of rich contextual features"),
+    "Contextual Features": ("HMM: Limited ability to use overlapping features", "CRF: Naturally handles overlapping and contextual features"),
+    "Computational Efficiency": ("HMM: Faster training, simpler computations", "CRF: Computationally heavier due to global normalization"),
+    "Scalability": ("HMM: Scales well for simple sequences", "CRF: Scales better with feature-rich complex sensor data"),
+    "Conclusion": ("CRF is more suitable for driving activity recognition due to better handling of contextual sensor features",)
+}
+
+scores = {
+    "Accuracy": (3, 5),
+    "Feature Flexibility": (2, 5),
+    "Training Speed": (5, 3),
+    "Scalability": (3, 4),
+    "Suitability (Activity Rec.)": (3, 5)
+}
+
+def print_comparison(title, data):
+    print(title)
+    print("-" * len(title))
+    for key, values in data.items():
+        print(f"{key}:")
+        for v in values:
+            print(f"  - {v}")
+
+def draw_hmm():
+    g = nx.DiGraph()
+    g.add_edges_from([("S1", "S2"), ("S2", "S3"), ("S1", "O1"), ("S2", "O2"), ("S3", "O3")])
+    pos = {"S1": (0, 1), "S2": (1, 1), "S3": (2, 1), "O1": (0, 0), "O2": (1, 0), "O3": (2, 0)}
+    nx.draw(g, pos, with_labels=True, node_color="#a6cee3", node_size=1600, arrows=True, font_size=8)
+    plt.title("HMM (Hidden states -> Observations)")
+
+def draw_crf():
+    g = nx.Graph()
+    g.add_edges_from([("Y1", "Y2"), ("Y2", "Y3"), ("Y1", "X1"), ("Y2", "X2"), ("Y3", "X3"), ("X1", "X2"), ("X2", "X3")])
+    pos = {"Y1": (0, 1), "Y2": (1, 1), "Y3": (2, 1), "X1": (0, 0), "X2": (1, 0), "X3": (2, 0)}
+    nx.draw(g, pos, with_labels=True, node_color="#fdbf6f", node_size=1600, font_size=8)
+    plt.title("CRF (Labels conditioned on all observations)")
+
+def draw_scores():
+    labels = list(scores.keys())
+    hmm_vals = [v[0] for v in scores.values()]
+    crf_vals = [v[1] for v in scores.values()]
+    x = range(len(labels))
+    width = 0.35
+    plt.bar([i - width/2 for i in x], hmm_vals, width, label="HMM", color="#1f78b4")
+    plt.bar([i + width/2 for i in x], crf_vals, width, label="CRF", color="#ff7f00")
+    plt.xticks(list(x), labels, rotation=30, ha="right", fontsize=7)
+    plt.ylabel("Score (1-5)")
+    plt.title("Comparative Scoring")
+    plt.legend()
+
+print("Question 2: Hidden Markov Models vs Conditional Random Fields (Driving Activity Recognition)")
+print(f"Student Name: {student_name}")
+print(f"Registration No: {reg_no}\n")
+print_comparison("Comparative Analysis", comparison)
+
+fig = plt.figure(figsize=(14, 5))
+fig.suptitle(f"{student_name} / {reg_no} - Q2: HMM vs CRF")
+
+plt.subplot(1, 3, 1)
+draw_hmm()
+
+plt.subplot(1, 3, 2)
+draw_crf()
+
+plt.subplot(1, 3, 3)
+draw_scores()
+
+plt.tight_layout()
+plt.savefig("question2_hmm_vs_crf.png", dpi=150)
+plt.show()
+
+# Output includes printed comparative analysis plus a saved graph image showing the HMM structure, CRF structure, and a comparative score chart
