@@ -1,0 +1,58 @@
+import numpy as np
+from hmmlearn import hmm
+
+student_name = "Dheeraj Krushna"
+reg_no = "192525230"
+
+states = ["Healthy", "Warning", "Failure"]
+observations = ["Normal", "Elevated", "Critical"]
+
+start_prob = np.array([0.8, 0.15, 0.05])
+
+trans_prob = np.array([
+    [0.85, 0.12, 0.03],
+    [0.20, 0.60, 0.20],
+    [0.05, 0.25, 0.70]
+])
+
+emission_prob = np.array([
+    [0.80, 0.15, 0.05],
+    [0.30, 0.50, 0.20],
+    [0.10, 0.30, 0.60]
+])
+
+model = hmm.CategoricalHMM(n_components=3, n_iter=100, random_state=42)
+model.startprob_ = start_prob
+model.transmat_ = trans_prob
+model.emissionprob_ = emission_prob
+
+sensor_sequence = ["Normal", "Elevated", "Elevated", "Critical", "Critical"]
+obs_indices = np.array([[observations.index(o)] for o in sensor_sequence])
+
+log_prob, hidden_states = model.decode(obs_indices, algorithm="viterbi")
+predicted_states = [states[i] for i in hidden_states]
+
+print("Predictive Machine Maintenance Using Hidden Markov Models")
+print(f"Student Name: {student_name}")
+print(f"Registration No: {reg_no}\n")
+
+print(f"Hidden States: {states}")
+print(f"Observation Symbols: {observations}\n")
+
+print("Transition Probability Matrix:")
+print(trans_prob)
+
+print("\nEmission Probability Matrix:")
+print(emission_prob)
+
+print(f"\nSensor Observation Sequence: {sensor_sequence}")
+print(f"Predicted Hidden State Sequence: {predicted_states}")
+print(f"Log Probability of Sequence: {log_prob:.4f}")
+
+print("\nInterpretation:")
+print("The Viterbi algorithm decodes the most likely hidden machine condition at each")
+print("time step from noisy sensor readings. Tracking the transition from Healthy to")
+print("Warning to Failure allows the company to schedule maintenance before a breakdown,")
+print("reducing unplanned downtime and repair costs.")
+
+# Output includes student name/reg no, the HMM transition and emission matrices, the decoded hidden state sequence for the sensor readings, and its interpretation
