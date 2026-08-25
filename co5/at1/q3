@@ -1,0 +1,87 @@
+import numpy as np
+import math
+
+np.random.seed(42)
+
+POPULATION_SIZE = 1_000_000
+CATEGORIES = ['Low_Risk', 'Moderate_Risk', 'High_Risk']
+CATEGORY_PROPORTIONS = [0.60, 0.30, 0.10]
+CONFIDENCE = 0.95
+MARGIN_OF_ERROR = 0.05
+RAM_LIMIT_GB = 8
+BYTES_PER_RECORD = 2000
+
+
+def required_sample_size(population, confidence, margin_error, proportion=0.5):
+    z_scores = {0.90: 1.645, 0.95: 1.96, 0.99: 2.576}
+    z = z_scores.get(confidence, 1.96)
+    numerator = (z ** 2) * proportion * (1 - proportion)
+    denominator = margin_error ** 2
+    n0 = numerator / denominator
+    n_adjusted = n0 / (1 + (n0 - 1) / population)
+    return math.ceil(n_adjusted)
+
+
+def memory_feasible_sample(ram_limit_gb, bytes_per_record):
+    ram_limit_bytes = ram_limit_gb * (1024 ** 3)
+    return ram_limit_bytes // bytes_per_record
+
+
+def simple_random_sample(population_labels, sample_size):
+    indices = np.random.choice(len(population_labels), size=sample_size, replace=False)
+    return population_labels[indices]
+
+
+def stratified_sample(population_labels, sample_size, categories, proportions):
+    sampled = []
+    for cat, prop in zip(categories, proportions):
+        cat_sample_size = round(sample_size * prop)
+        cat_indices = np.where(population_labels == cat)[0]
+        chosen = np.random.choice(cat_indices, size=cat_sample_size, replace=False)
+        sampled.extend(population_labels[chosen])
+    return np.array(sampled)
+
+
+def distribution(labels, categories):
+    total = len(labels)
+    return {cat: round(float(100 * np.sum(labels == cat) / total), 2) for cat in categories}
+
+
+population_labels = np.random.choice(
+    CATEGORIES, size=POPULATION_SIZE, p=CATEGORY_PROPORTIONS
+)
+
+stat_sample_size = required_sample_size(POPULATION_SIZE, CONFIDENCE, MARGIN_OF_ERROR)
+memory_cap_sample_size = memory_feasible_sample(RAM_LIMIT_GB, BYTES_PER_RECORD)
+final_sample_size = min(stat_sample_size, memory_cap_sample_size, 50000)
+
+srs_result = simple_random_sample(population_labels, final_sample_size)
+strat_result = stratified_sample(population_labels, final_sample_size, CATEGORIES, CATEGORY_PROPORTIONS)
+
+population_dist = distribution(population_labels, CATEGORIES)
+srs_dist = distribution(srs_result, CATEGORIES)
+strat_dist = distribution(strat_result, CATEGORIES)
+
+vc_dimension_estimate = final_sample_size // 10
+
+print("=" * 60)
+print("Student: Dheeraj.P | Reg No: 192525230")
+print("Question 3: Sampling Strategy for ML Model Development")
+print("=" * 60)
+print(f"Population size            : {POPULATION_SIZE:,}")
+print(f"Population distribution %  : {population_dist}")
+print(f"Statistically required n   : {stat_sample_size:,} (95% confidence, 5% margin)")
+print(f"RAM-feasible max sample    : {memory_cap_sample_size:,} records (8 GB limit)")
+print(f"Final chosen sample size   : {final_sample_size:,}")
+print("-" * 60)
+print("Simple Random Sampling result:")
+print(f"  Distribution %: {srs_dist}")
+print("-" * 60)
+print("Stratified Sampling result:")
+print(f"  Distribution %: {strat_dist}")
+print("-" * 60)
+print(f"Approx. VC dimension budget for sample size: {vc_dimension_estimate}")
+print("Recommended method: Stratified Sampling")
+print("Reason: preserves population proportions across risk categories,")
+print("reducing sampling bias while satisfying memory and confidence constraints.")
+print("=" * 60)
