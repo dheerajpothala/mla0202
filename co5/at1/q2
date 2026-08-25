@@ -1,0 +1,89 @@
+import numpy as np
+import random
+
+random.seed(42)
+np.random.seed(42)
+
+NUM_ADS = 5
+NUM_INTERACTIONS = 10000
+EPSILON = 0.1
+
+TRUE_CTR = [0.05, 0.12, 0.08, 0.20, 0.15]
+BEST_AD = int(np.argmax(TRUE_CTR))
+BEST_CTR = max(TRUE_CTR)
+
+
+def epsilon_greedy_bandit():
+    counts = np.zeros(NUM_ADS)
+    estimated_ctr = np.zeros(NUM_ADS)
+    total_reward = 0
+    cumulative_regret = 0
+    regret_history = []
+    selection_counts = np.zeros(NUM_ADS)
+
+    for t in range(1, NUM_INTERACTIONS + 1):
+        if random.random() < EPSILON:
+            ad = random.randrange(NUM_ADS)
+        else:
+            ad = int(np.argmax(estimated_ctr))
+
+        click = 1 if random.random() < TRUE_CTR[ad] else 0
+        total_reward += click
+        counts[ad] += 1
+        selection_counts[ad] += 1
+        estimated_ctr[ad] += (click - estimated_ctr[ad]) / counts[ad]
+
+        cumulative_regret += BEST_CTR - TRUE_CTR[ad]
+        regret_history.append(cumulative_regret)
+
+    return estimated_ctr, selection_counts, total_reward, cumulative_regret, regret_history
+
+
+def ucb_bandit():
+    counts = np.zeros(NUM_ADS)
+    estimated_ctr = np.zeros(NUM_ADS)
+    total_reward = 0
+    cumulative_regret = 0
+    regret_history = []
+
+    for t in range(1, NUM_INTERACTIONS + 1):
+        if t <= NUM_ADS:
+            ad = t - 1
+        else:
+            ucb_values = estimated_ctr + np.sqrt(2 * np.log(t) / counts)
+            ad = int(np.argmax(ucb_values))
+
+        click = 1 if random.random() < TRUE_CTR[ad] else 0
+        total_reward += click
+        counts[ad] += 1
+        estimated_ctr[ad] += (click - estimated_ctr[ad]) / counts[ad]
+
+        cumulative_regret += BEST_CTR - TRUE_CTR[ad]
+        regret_history.append(cumulative_regret)
+
+    return estimated_ctr, counts, total_reward, cumulative_regret, regret_history
+
+
+eg_ctr, eg_counts, eg_reward, eg_regret, eg_hist = epsilon_greedy_bandit()
+ucb_ctr, ucb_counts, ucb_reward, ucb_regret, ucb_hist = ucb_bandit()
+
+print("=" * 60)
+print("Student: Dheeraj.P | Reg No: 192525230")
+print("Question 2: Multi-Armed Bandit for Ad Selection")
+print("=" * 60)
+print(f"True CTRs per ad : {TRUE_CTR}")
+print(f"Best ad (oracle) : Ad {BEST_AD + 1} with CTR {BEST_CTR}")
+print(f"Total interactions: {NUM_INTERACTIONS}")
+print("-" * 60)
+print("Epsilon-Greedy (epsilon = 0.1):")
+for i in range(NUM_ADS):
+    print(f"  Ad {i + 1}: est CTR = {eg_ctr[i]:.4f}, times shown = {int(eg_counts[i])}")
+print(f"  Total clicks       : {eg_reward}")
+print(f"  Cumulative regret  : {eg_regret:.2f}")
+print("-" * 60)
+print("UCB (Upper Confidence Bound):")
+for i in range(NUM_ADS):
+    print(f"  Ad {i + 1}: est CTR = {ucb_ctr[i]:.4f}, times shown = {int(ucb_counts[i])}")
+print(f"  Total clicks       : {ucb_reward}")
+print(f"  Cumulative regret  : {ucb_regret:.2f}")
+print("=" * 60)
